@@ -1,0 +1,2 @@
+pecan>=0.8.0
+Paste

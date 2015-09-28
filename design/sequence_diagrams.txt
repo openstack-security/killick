@@ -1,0 +1,18 @@
+===========================
+ Killock Sequence Diagrams
+===========================
+
+
+---------------------------------------------
+ Certificiate Request (CSR) Sumibted by user
+---------------------------------------------
+
+
+title Certificate Request Submit
+
+User->RA: CSR,email,password(optional)
+RA->Validator: CSR
+Validator->Validator: Run Validators
+Validator->RA: Validation Results (dictionary)
+RA->Database: Write request data (request object)
+RA->User: Failure Notification (optional)

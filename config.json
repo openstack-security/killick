@@ -1,0 +1,73 @@
+{
+  "auth": {
+    "static": {
+      "secret": "pass",
+      "user": "user"
+    }
+  },
+
+  "ra": {
+    "notify_user_validation_result": "True",
+    "auto_deny_if_validation_fails": "True",
+    "certdb_file":"CertDB/certdb.json"
+  },
+
+
+  "ca": {
+    "cert_path": "CA/root-ca.crt",
+    "key_path": "CA/root-ca-unwrapped.key",
+    "output_path": "certs",
+    "signing_hash": "sha256",
+    "valid_hours": 24
+  },
+
+  "validators": {
+    "default": {
+      "common_name": {
+        "allowed_domains": [
+          ".hp.com"
+        ]
+      },
+      "alternative_names": {
+        "allowed_domains": [
+          ".example.com"
+        ]
+      },
+      "server_group": {
+        "group_prefixes": {
+          "bk": "Bock_Team",
+          "cs": "CS_Team",
+          "gl": "Glance_Team",
+          "mb": "MB_Team",
+          "nv": "Nova_Team",
+          "ops": "SysEng_Team",
+          "qu": "Neutron_Team",
+          "sw": "Swift_Team"
+        }
+      },
+      "extensions": {
+        "allowed_extensions": [
+          "keyUsage",
+          "subjectAltName",
+          "basicConstraints",
+          "subjectKeyIdentifier"
+        ]
+      },
+      "key_usage": {
+        "allowed_usage": [
+          "Digital Signature",
+          "Key Encipherment",
+          "Non Repudiation"
+        ]
+      },
+      "ca_status": {
+        "ca_requested": false
+      },
+      "source_cidrs": {
+        "cidrs": [
+          "127.0.0.0/8"
+        ]
+      }
+    }
+  }
+}

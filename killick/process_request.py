@@ -1,16 +1,34 @@
 import logging
-import json
-import pecan
 
 from anchor import auth
 from anchor import jsonloader
 from anchor import validation
-from anchor.X509 import signing_request
+import pecan
 
 from killick import request
 from killick import util
 
 logger = logging.getLogger(__name__)
+
+
+def _parse_csr(pecan_request, auth_result, user):
+
+    # Create requset object for writing to database
+    new_request = request.request(pecan_request.POST.get('csr').replace(
+        "\n", ""), util.get_next_id(jsonloader.conf.ra_options["certdb_file"]), user)
+
+    # Validate CSR
+    try:
+        new_request.validator_results = validation.validate_csr(jsonloader.conf.ra_options[
+                                                                "ra_name"], auth_result, new_request.get_X509csr(), pecan_request)
+    except Exception as e:
+        logger.exception("Error running validators: %s", e)
+        pecan.abort(500, "Internal Validation Error")
+
+    new_request.Valid = all(list(new_request.validator_results.values()))
+
+    return new_request
+
 
 def recieve_csr(pecan_request):
 
@@ -46,26 +64,20 @@ def recieve_csr(pecan_request):
     return return_str
 
 
-def _parse_csr(pecan_request, auth_result, user):
-
-    # Create requset object for writing to database
-    new_request = request.request(pecan_request.POST.get('csr').replace("\n",""), util.get_next_id(jsonloader.conf.ra_options["certdb_file"]), user)
-
-    #Parse csr for validation
-    parsed_csr = None
+def fetch_cert(reqid):
+    dbdata = util.load_db(jsonloader.conf.ra_options["certdb_file"])
     try:
-        parsed_csr = signing_request.X509Csr.from_buffer(pecan_request.POST.get('csr'))
-    except Exception as e:
-        logger.exception("Exception while parsing the CSR: %s", e)
-        pecan.abort(400, "CSR cannot be parsed") # Hack
-
-    # Validate CSR
-    try:
-        new_request.validator_results = validation.validate_csr(jsonloader.conf.ra_options["ra_name"], auth_result, parsed_csr, pecan_request)
-    except Exception as e:
-        logger.exception("Error running validators: %s", e)
-        pecan.abort(500, "Internal Validation Error")
-
-    new_request.Valid = all(list(new_request.validator_results.values()))
-
-    return new_request
+        if dbdata[reqid].getStatus() == "Revoked":
+            return "Cannot fetch, certificate is revoked"
+        elif dbdata[reqid].getStatus() == "Issued":
+            return dbdata[reqid].get_cert()
+        elif dbdata[reqid].getStatus() == "Pending":
+            return "Cannot fetch, certificate is not yet Issued"
+        elif dbdata[reqid].getStatus() == "Denied":
+            return "Cannot fetch, certificate request is Denied"
+        else:
+            return "Cannot fetch, Unkown state error"
+        util.write_db(dbdata, jsonloader.conf.ra_options["certdb_file"])
+        return dbdata[reqid].toInfoString()
+    except Exception:
+        return "Cannot find reqid %d in cert DB" % reqid

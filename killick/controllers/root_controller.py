@@ -12,7 +12,6 @@
 # under the License.
 
 import logging
-import json
 
 import pecan
 from pecan import rest
@@ -49,56 +48,67 @@ class SignController(rest.RestController):
 
 
 class DenyController(rest.RestController):
-    """Serves /admin/deny to manage certificate operations"""
-    #hack add error handling
+    """Serves /admin/deny to manage certificate operations."""
+    # hack add error handling
     @pecan.expose(content_type="text/plain")
-    def get(self,key):
+    def get(self, key):
         return admin.deny(int(key)) + "\n"
 
 
 class IssueController(rest.RestController):
-    """Serves /admin/issue to manage certificate operations"""
+    """Serves /admin/issue to manage certificate operations."""
     @pecan.expose(content_type="text/plain")
-    def get(self,key):
+    def get(self, key):
         return admin.issue(int(key)) + "\n"
 
 
 class RevokeController(rest.RestController):
-    """Serves /admin/revoke to manage certificate operations"""
+    """Serves /admin/revoke to manage certificate operations."""
     @pecan.expose(content_type="text/plain")
-    def get(self,key):
+    def get(self, key):
         return admin.revoke(int(key)) + "\n"
 
 
 class AdminController(rest.RestController):
-    """Serves /admin to manage certificate operations"""
+    """Serves /admin to manage certificate operations."""
     sign = SignController()
     deny = DenyController()
     issue = IssueController()
     revoke = RevokeController()
 
 
-class InfoController(rest.RestController):
-    """Serves /admin to manage certificate operations"""
+class FetchController(rest.RestController):
+    """Serves /admin to manage certificate operations."""
 
     @pecan.expose(content_type="text/plain")
-    def get(self,key):
+    def get(self, key):
+        return process_request.fetch_cert(int(key))
+
+
+class InfoController(rest.RestController):
+    """Serves /info to get information about a certificate request."""
+
+    @pecan.expose(content_type="text/plain")
+    def get(self, key):
         return admin.info(int(key))
 
 
 class ListController(rest.RestController):
-    """Serves /admin to manage certificate operations"""
+    """Serves /admin to manage certificate operations."""
 
     @pecan.expose(content_type="text/plain")
-    def get(self,*key):
+    def get(self, *key):
         return admin.list(key)
 
 
 class V1Controller(rest.RestController):
-    sign = SignController()
+
     admin = AdminController()
+    fetch = FetchController()
+    retrieve = FetchController()
     info = InfoController()
     list = ListController()
+    sign = SignController()
 
 
 class RootController(object):

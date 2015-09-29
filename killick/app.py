@@ -16,13 +16,13 @@ from __future__ import absolute_import
 import logging
 import sys
 
+from anchor import jsonloader
 import paste
 from paste import translogger  # noqa
 import pecan
 
-from anchor import jsonloader
-
 logger = logging.getLogger(__name__)
+
 
 def setup_app(config):
     # initial logging, will be re-configured later
@@ -34,7 +34,7 @@ def setup_app(config):
         **app_conf
     )
 
-    jsonloader.conf.load_file_data("config.json") # todo tidy conf loading
+    jsonloader.conf.load_file_data("config.json")
     jsonloader.conf.load_extensions()
 
     return paste.translogger.TransLogger(app, setup_console_handler=False)

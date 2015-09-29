@@ -12,19 +12,19 @@
 
 from __future__ import absolute_import
 
-import json
 import logging
 
+from anchor import certificate_ops
 from anchor import jsonloader
 
-from killick import request
 from killick import util
 
 logger = logging.getLogger(__name__)
 logging.basicConfig()
 
+
 def list(*filter):
-    dbdata = util.loadDB(jsonloader.conf.ra_options["certdb_file"])
+    dbdata = util.load_db(jsonloader.conf.ra_options["certdb_file"])
     return_str = ""
 
     # hack - deal with optional key from pecan (i.e /list vs /list/pending)
@@ -70,7 +70,7 @@ def list(*filter):
 
 
 def issue(reqid):
-    dbdata = util.loadDB(jsonloader.conf.ra_options["certdb_file"])
+    dbdata = util.load_db(jsonloader.conf.ra_options["certdb_file"])
     try:
         if dbdata[reqid].getStatus() == "Pending":
             dbdata[reqid].Issued = True
@@ -80,14 +80,17 @@ def issue(reqid):
             return "Cannot issue certificate already Denied"
         elif dbdata[reqid].getStatus() == "Revoked":
             return "Cannot issue certificate already Revoked"
-        util.writeDB(dbdata, jsonloader.conf.ra_options["certdb_file"])
-        return dbdata[reqid].toInfoString()
-    except:
+    except Exception:
         return "Cannot find reqid %d in cert DB" % reqid
+
+    dbdata[reqid].cert = certificate_ops.dispatch_sign(jsonloader.conf.ra_options[
+                                                       "ra_name"], dbdata[reqid].get_X509csr()).replace("\n", "")
+    util.write_db(dbdata, jsonloader.conf.ra_options["certdb_file"])
+    return dbdata[reqid].toInfoString()
 
 
 def revoke(reqid):
-    dbdata = util.loadDB(jsonloader.conf.ra_options["certdb_file"])
+    dbdata = util.load_db(jsonloader.conf.ra_options["certdb_file"])
     try:
         if dbdata[reqid].getStatus() == "Revoked":
             return "Cannot revoke, certificate already Revoked"
@@ -99,14 +102,14 @@ def revoke(reqid):
             return "Cannot revoke, certificate already Denied"
         else:
             return "Cannot revoke, Unkown state error"
-        util.writeDB(dbdata, jsonloader.conf.ra_options["certdb_file"])
+        util.write_db(dbdata, jsonloader.conf.ra_options["certdb_file"])
         return dbdata[reqid].toInfoString()
-    except:
+    except Exception:
         return "Cannot find reqid %d in cert DB" % reqid
 
 
 def deny(reqid):
-    dbdata = util.loadDB(jsonloader.conf.ra_options["certdb_file"])
+    dbdata = util.load_db(jsonloader.conf.ra_options["certdb_file"])
     try:
         if dbdata[reqid].getStatus() == "Revoked":
             return "Cannot deny, certificate already Revoked"
@@ -118,17 +121,17 @@ def deny(reqid):
             return "Cannot deny, certificate already Denied"
         else:
             return "Cannot deny, Unkown state error"
-        util.writeDB(dbdata, jsonloader.conf.ra_options["certdb_file"])
+        util.write_db(dbdata, jsonloader.conf.ra_options["certdb_file"])
         return dbdata[reqid].toInfoString()
-    except:
+    except Exception:
         return "Cannot find reqid %d in cert DB" % reqid
 
 
 def info(reqid):
-    dbdata = util.loadDB(jsonloader.conf.ra_options["certdb_file"])
+    dbdata = util.load_db(jsonloader.conf.ra_options["certdb_file"])
     try:
         return_str = dbdata[reqid].toInfoString() + "\n"
         return_str += dbdata[reqid].validationResultToString() + "\n"
         return return_str
-    except:
+    except Exception:
         return "Cannot find reqid %d in cert DB\n" % reqid

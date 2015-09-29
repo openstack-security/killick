@@ -29,3 +29,7 @@ deny/revoke/issue a certificate:
   curl http://0.0.0.0:5000/v1/admin/issue/<cert id>
   curl http://0.0.0.0:5000/v1/admin/deny/10012
   curl http://0.0.0.0:5000/v1/admin/revoke/10012
+
+fetch/retrieve a certificate:
+  curl http://0.0.0.0:5000/v1/fetch/<cert id>
+  curl http://0.0.0.0:5000/v1/retrieve/<cert id>

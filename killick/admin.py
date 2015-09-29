@@ -24,11 +24,16 @@ logger = logging.getLogger(__name__)
 logging.basicConfig()
 
 def list(*filter):
-    jsonloader.conf.load_file_data("config.json")
-    dbdata = util.loadDB(jsonloader.conf.ra["certdb_file"])
+    dbdata = util.loadDB(jsonloader.conf.ra_options["certdb_file"])
     return_str = ""
+
+    # hack - deal with optional key from pecan (i.e /list vs /list/pending)
+    # by checking for tuple and unpacking - there must be a nicer way of
+    # doing this
+    if type(filter[0]) is tuple:
+        filter = filter[0]
+
     if len(filter) > 0:
-        return_str += "filtering on %s\n" % filter[0]
         if filter[0].lower() == "issued":
             for req in sorted(dbdata):
                 if dbdata[req] is None:
@@ -39,7 +44,7 @@ def list(*filter):
             for req in sorted(dbdata):
                 if dbdata[req] is None:
                     continue
-                if req.getStatus() == "Revoked":
+                if dbdata[req].getStatus() == "Revoked":
                     return_str += dbdata[req].toInfoString() + "\n"
 
         elif filter[0].lower() == "denied":
@@ -55,19 +60,17 @@ def list(*filter):
                 if dbdata[req].getStatus() == "Pending":
                     return_str += dbdata[req].toInfoString() + "\n"
         else:
-            return_str = "Unkown filter, valid filters are issued, pending, denied or revoked"
+            return_str = "Unkown filter, valid filters are issued, pending, denied or revoked\n"
     else:
         for req in sorted(dbdata):
             if dbdata[req] is None:
                 continue
             return_str += dbdata[req].toInfoString() + "\n"
-
     return return_str
 
 
 def issue(reqid):
-    jsonloader.conf.load_file_data("config.json")
-    dbdata = util.loadDB(jsonloader.conf.ra["certdb_file"])
+    dbdata = util.loadDB(jsonloader.conf.ra_options["certdb_file"])
     try:
         if dbdata[reqid].getStatus() == "Pending":
             dbdata[reqid].Issued = True
@@ -77,15 +80,14 @@ def issue(reqid):
             return "Cannot issue certificate already Denied"
         elif dbdata[reqid].getStatus() == "Revoked":
             return "Cannot issue certificate already Revoked"
-        util.writeDB(dbdata, jsonloader.conf.ra["certdb_file"])
+        util.writeDB(dbdata, jsonloader.conf.ra_options["certdb_file"])
         return dbdata[reqid].toInfoString()
     except:
         return "Cannot find reqid %d in cert DB" % reqid
 
 
 def revoke(reqid):
-    jsonloader.conf.load_file_data("config.json")
-    dbdata = util.loadDB(jsonloader.conf.ra["certdb_file"])
+    dbdata = util.loadDB(jsonloader.conf.ra_options["certdb_file"])
     try:
         if dbdata[reqid].getStatus() == "Revoked":
             return "Cannot revoke, certificate already Revoked"
@@ -97,15 +99,14 @@ def revoke(reqid):
             return "Cannot revoke, certificate already Denied"
         else:
             return "Cannot revoke, Unkown state error"
-        util.writeDB(dbdata, jsonloader.conf.ra["certdb_file"])
+        util.writeDB(dbdata, jsonloader.conf.ra_options["certdb_file"])
         return dbdata[reqid].toInfoString()
     except:
         return "Cannot find reqid %d in cert DB" % reqid
 
 
 def deny(reqid):
-    jsonloader.conf.load_file_data("config.json")
-    dbdata = util.loadDB(jsonloader.conf.ra["certdb_file"])
+    dbdata = util.loadDB(jsonloader.conf.ra_options["certdb_file"])
     try:
         if dbdata[reqid].getStatus() == "Revoked":
             return "Cannot deny, certificate already Revoked"
@@ -117,38 +118,17 @@ def deny(reqid):
             return "Cannot deny, certificate already Denied"
         else:
             return "Cannot deny, Unkown state error"
-        util.writeDB(dbdata, jsonloader.conf.ra["certdb_file"])
+        util.writeDB(dbdata, jsonloader.conf.ra_options["certdb_file"])
         return dbdata[reqid].toInfoString()
     except:
         return "Cannot find reqid %d in cert DB" % reqid
 
+
 def info(reqid):
-    jsonloader.conf.load_file_data("config.json")
-    dbdata = util.loadDB(jsonloader.conf.ra["certdb_file"])
+    dbdata = util.loadDB(jsonloader.conf.ra_options["certdb_file"])
     try:
         return_str = dbdata[reqid].toInfoString() + "\n"
         return_str += dbdata[reqid].validationResultToString() + "\n"
         return return_str
     except:
-        return "Cannot find reqid %d in cert DB" % reqid
-
-def processCommand(jsonmsg):
-    #  Process Command recieved via http put of json.
-    #    method: [issue|revoke|deny]
-    #    reqid: [int cert id]
-
-    try:
-        cmd = json.loads(jsonmsg)
-        if str(cmd["method"]).lower() == "issue":
-            print "Issuing %d" % cmd["reqid"]
-            print issue(cmd["reqid"])
-        elif str(cmd["method"]).lower() == "deny":
-            print "Dening %d" % cmd["reqid"]
-            print deny(cmd["reqid"])
-        elif str(cmd["method"]).lower() == "revoke":
-            print "Revoking %d" % cmd["reqid"]
-            print revoke(cmd["reqid"])
-        else:
-            print "Unkown command"
-    except:
-        return "Cannot parse json command %s\n" % jsonmsg
+        return "Cannot find reqid %d in cert DB\n" % reqid

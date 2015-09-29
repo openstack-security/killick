@@ -5,7 +5,7 @@ server = {
 
 # Pecan Application Configurations
 app = {
-    'root': 'killick.controllers.RootController',
+    'root': 'killick.controllers.root_controller.RootController',
     'modules': ['killick'],
     # 'static_root': '%(confdir)s/public',
     # 'template_path': '%(confdir)s/${package}/templates',

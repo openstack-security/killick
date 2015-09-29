@@ -4,12 +4,12 @@ import json
 
 class request(object):
     """ Class to hold a CSR and its status """
-    def __init__(self, ncsr="", nid=0):
+    def __init__(self, ncsr, nid, nuser):
 
         # CSR Info
         self.request_id = nid
         self.recieved_time = datetime.now()
-        self.user = ""
+        self.user = nuser
 
         # CSR and Cert
         self.csr = ncsr

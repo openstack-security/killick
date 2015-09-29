@@ -12,7 +12,7 @@ def loadDB(dbfilepath):
         with open(dbfilepath, 'r') as fp:
             for line in fp:
                 line_counter += 1
-                req = request.request()
+                req = request.request(None,None,None)
                 req.fromjson(json.loads(line))
                 requestdb[req.request_id] = req
         return requestdb

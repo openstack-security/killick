@@ -16,3 +16,24 @@ Validator->Validator: Run Validators
 Validator->RA: Validation Results (dictionary)
 RA->Database: Write request data (request object)
 RA->User: Failure Notification (optional)
+
+---------------
+ Issue Request
+---------------
+
+
+title Issue Certificate
+
+Admin->GUI: 1. Login
+GUI->Controller: 2. List(pending)
+Controller->DB: 3. Fetch DB
+DB->Controller: 4. Cert DB
+Controller->Controller: 5. Filter(pending)
+Controller->GUI: 6. Show pending certs
+Admin->GUI: 7. Issue(ID)
+GUI->Controller: 8. Issue(ID)
+Controller->Controller: 9. Get CSR(ID)
+Controller->CA: 9. Sign(CSR)
+CA->Controller: 10. Cert
+Controller->DB: 11. Update DB (ID, Issued, Cert)
+Controller->User: 12. Email Notification

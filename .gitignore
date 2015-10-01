@@ -18,5 +18,5 @@ build/*
 build/*
 cover/*
 .cover
-.coverage
+.coverage*
 anchor

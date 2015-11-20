@@ -17,6 +17,9 @@ def load_db(dbfilepath):
                 req.fromjson(json.loads(line))
                 requestdb[req.request_id] = req
         return requestdb
+    except IOError:
+        logger.error("Cannot open certdb at %s, assuming no file and attempting to write anyway",dbfilepath)
+        return {}
     except Exception:
         logger.error("Error parsing json from: %s at line %d",
                      dbfilepath, line_counter)
@@ -31,4 +34,8 @@ def write_db(dbdata, dbfilepath):
 def get_next_id(dbfilepath):
     # hack
     requestdb = load_db(dbfilepath)
-    return max(requestdb.keys()) + 1
+    if len(requestdb) == 0:
+        #empty database file
+        return 1
+    else:
+        return max(requestdb.keys()) + 1

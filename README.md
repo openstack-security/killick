@@ -5,7 +5,14 @@ Killick is a lightweight PKI utilising anchor validation functionality.
 
 install with:
 
+  virtualenv .killick-venv (optional)
+  . .killick-venv/bin/activate  (optional)
+  pip install pyasn1
   python setup.py develop
+  git clone git://git.openstack.org/openstack/anchor
+  cd anchor
+  pip install .
+  cd ..
 
 start with:
 
@@ -14,15 +21,15 @@ start with:
 
 list certificates in database:
 
-  curl -X POST http://0.0.0.0:5000/v1/list
-  curl -X POST http://0.0.0.0:5000/v1/list/pending
-  curl -X POST http://0.0.0.0:5000/v1/list/denied
-  curl -X POST http://0.0.0.0:5000/v1/list/revoked
+  curl http://0.0.0.0:5000/v1/list
+  curl http://0.0.0.0:5000/v1/list/pending
+  curl http://0.0.0.0:5000/v1/list/denied
+  curl http://0.0.0.0:5000/v1/list/revoked
 
 
 submit csr:
 
-  curl -X POST -F user="test@user.com" -F 'csr=<anchor-test.example.com.csr' http://0.0.0.0:5/v1/sign
+  curl -X POST -F user="test@user.com" -F 'csr=<anchor-test.example.com.csr' http://0.0.0.0:5000/v1/sign
 
 deny/revoke/issue a certificate:
 

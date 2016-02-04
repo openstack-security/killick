@@ -37,3 +37,29 @@ Controller->CA: 9. Sign(CSR)
 CA->Controller: 10. Cert
 Controller->DB: 11. Update DB (ID, Issued, Cert)
 Controller->User: 12. Email Notification
+
+
+--------------------
+ Revoke certificate
+--------------------
+
+
+title Revoke Certificate
+
+Admin->GUI: 1. Login
+GUI->Controller: 2. List(issued)
+Controller->DB: 3. Fetch DB
+DB->Controller: 4. Cert DB
+Controller->Controller: 5. Filter(issued)
+Controller->GUI: 6. Show issued certs
+Admin->GUI: 7. Revoke(ID)
+GUI->Controller: 8. Revoke(ID)
+Controller->Controller: 9. Filter DB(ID)
+Controller->DB: 10. Update DB (ID, Revoked, Revocation Date)
+Controller->Controller: 11. Filter DB(revoked)
+Controller->Controller: 12. Build Revoked Cert Objects(revoked certs, revocation dates)
+Controller->Controller: 13. Build CRL Object(revoked certs, CRL valid from, CRL lifetime)
+Controller->CA: 14. Sign CRL
+CA->Controller: 15. CRL
+Controller->CRL Responders: 16. CRL
+Controller->Admin: 12. Success

@@ -17,6 +17,7 @@ import pecan
 from pecan import rest
 
 from killick import admin
+from killick import crl_generator
 from killick import process_request
 
 # from anchor import auth
@@ -101,6 +102,14 @@ class ListController(rest.RestController):
         return admin.list(key)
 
 
+class CrlController(rest.RestController):
+    """Serves /crl to return a current crl."""
+
+    @pecan.expose(content_type="text/plain")
+    def get(self):
+        return crl_generator.generate_crl()
+
+
 class V1Controller(rest.RestController):
 
     admin = AdminController()
@@ -109,6 +118,7 @@ class V1Controller(rest.RestController):
     info = InfoController()
     list = ListController()
     sign = SignController()
+    crl = CrlController()
 
 
 class RootController(object):

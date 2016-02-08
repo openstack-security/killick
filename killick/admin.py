@@ -12,6 +12,7 @@
 
 from __future__ import absolute_import
 
+import datetime
 import logging
 
 from anchor import certificate_ops
@@ -46,7 +47,6 @@ def list(*filter):
                     continue
                 if dbdata[req].getStatus() == "Revoked":
                     return_str += dbdata[req].toInfoString() + "\n"
-
         elif filter[0].lower() == "denied":
             for req in sorted(dbdata):
                 if dbdata[req] is None:
@@ -60,7 +60,8 @@ def list(*filter):
                 if dbdata[req].getStatus() == "Pending":
                     return_str += dbdata[req].toInfoString() + "\n"
         else:
-            return_str = "Unkown filter, valid filters are issued, pending, denied or revoked\n"
+            return_str = ("Unkown filter, valid filters are issued,",
+                          "pending, denied or revoked\n")
     else:
         for req in sorted(dbdata):
             if dbdata[req] is None:
@@ -84,7 +85,8 @@ def issue(reqid):
         return "Cannot find reqid %d in cert DB" % reqid
 
     dbdata[reqid].cert = certificate_ops.dispatch_sign(jsonloader.conf.ra_options[
-                                                       "ra_name"], dbdata[reqid].get_X509csr()).replace("\n", "")
+                                                       "ra_name"],
+                                                       dbdata[reqid].get_X509csr()).replace("\n", "")
     util.write_db(dbdata, jsonloader.conf.ra_options["certdb_file"])
     return dbdata[reqid].toInfoString()
 
@@ -96,6 +98,7 @@ def revoke(reqid):
             return "Cannot revoke, certificate already Revoked"
         elif dbdata[reqid].getStatus() == "Issued":
             dbdata[reqid].Revoked = True
+            dbdata[reqid].revocation_date = datetime.datetime.now()
         elif dbdata[reqid].getStatus() == "Pending":
             return "Cannot revoke, certificate not Issued"
         elif dbdata[reqid].getStatus() == "Denied":

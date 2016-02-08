@@ -41,3 +41,7 @@ fetch/retrieve a certificate:
 
     curl http://0.0.0.0:5000/v1/fetch/<cert id>
     curl http://0.0.0.0:5000/v1/retrieve/<cert id>
+
+fetch certificate revocation list (crl):
+
+    curl http://0.0.0.0:5000/v1/crl

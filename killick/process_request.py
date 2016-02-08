@@ -13,14 +13,19 @@ logger = logging.getLogger(__name__)
 
 def _parse_csr(pecan_request, auth_result, user):
 
-    # Create requset object for writing to database
-    new_request = request.request(pecan_request.POST.get('csr').replace(
-        "\n", ""), util.get_next_id(jsonloader.conf.ra_options["certdb_file"]), user)
+    # Create request object for writing to database
+    new_request = request.request(pecan_request.POST.get('csr').replace("\n", ""),
+        util.get_next_id(jsonloader.conf.ra_options["certdb_file"]),user)
 
     # Validate CSR
     try:
-        new_request.validator_results = validation.validate_csr(jsonloader.conf.ra_options[
-                                                                "ra_name"], auth_result, new_request.get_X509csr(), pecan_request)
+        new_request.validator_results = validation.validate_csr(
+            jsonloader.conf.ra_options["ra_name"],
+            auth_result,
+            new_request.get_X509csr(),
+            pecan_request
+        )
+
     except Exception as e:
         logger.exception("Error running validators: %s", e)
         pecan.abort(500, "Internal Validation Error")
@@ -35,7 +40,7 @@ def recieve_csr(pecan_request):
     # Check Auth
     auth_result = auth.validate("default",
                                 "myusername",
-                                "simplepassword")
+                                "simplepassword")  # hack
 
     # Parse and validate CSR
     new_request = _parse_csr(pecan_request, auth_result,
@@ -47,7 +52,8 @@ def recieve_csr(pecan_request):
     return_str = "Certificate Request Recieved. ID: %d\n" % new_request.request_id
 
     # If auto_deny when validation fails is enabled, deny cert
-    if (jsonloader.conf.ra_options["auto_deny_if_validation_fails"] == "True") & (new_request.Valid is False):
+    if ((jsonloader.conf.ra_options["auto_deny_if_validation_fails"] == "True")
+            & (new_request.Valid is False)):
         new_request.Denied = True
         return_str += "Certificate Request Denied Automatically\n"
 

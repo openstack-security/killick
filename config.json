@@ -21,6 +21,10 @@
     "certdb_file": "CertDB/certdb.json",
     "ra_name": "default"
   },
+  "revocation_options": {
+    "crl_lifetime_days": "10",
+    "crl_format": "PEM"
+  },
   "registration_authority": {
     "default": {
       "authentication": "method_1",

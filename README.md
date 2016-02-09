@@ -8,11 +8,10 @@ install with:
     virtualenv .killick-venv (optional)
     . .killick-venv/bin/activate  (optional)
     pip install pyasn1
+    pip install cryptography
     python setup.py develop
     git clone git://git.openstack.org/openstack/anchor
-    cd anchor
-    pip install .
-    cd ..
+    pip install anchor/
 
 start with:
 

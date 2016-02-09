@@ -70,7 +70,7 @@ class request(object):
         csr_string += self.csr[35:(len(self.csr) - 33)] + "\n"
         csr_string += self.csr[(len(self.csr) - 33):]
         try:
-            return signing_request.X509Csr.from_buffer(unicode(csr_string))
+            return signing_request.X509Csr.from_buffer(str(csr_string))
         except Exception as e:
             logger.exception("Exception while parsing the CSR: %s", e)
             raise e

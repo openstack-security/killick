@@ -84,9 +84,8 @@ def issue(reqid):
     except Exception:
         return "Cannot find reqid %d in cert DB" % reqid
 
-    dbdata[reqid].cert = certificate_ops.dispatch_sign(jsonloader.conf.ra_options[
-                                                       "ra_name"],
-                                                       dbdata[reqid].get_X509csr()).replace("\n", "")
+    dbdata[reqid].cert = certificate_ops.dispatch_sign(jsonloader.conf.ra_options["ra_name"],
+                                                       dbdata[reqid].get_X509csr())[0].replace("\n", ""),
     util.write_db(dbdata, jsonloader.conf.ra_options["certdb_file"])
     return dbdata[reqid].toInfoString()
 

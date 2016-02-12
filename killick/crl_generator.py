@@ -62,7 +62,7 @@ def generate_crl():
                                                                'cert_path'])
     except Exception as e:
         logger.error("Cannot load the signing CA: %s" % (e,))
-        raise e
+        raise
 
     # set CRL cn (issuer name) to that of the CA certificate
     crl_builder = crl_builder.issuer_name(x509.Name([
@@ -76,7 +76,7 @@ def generate_crl():
                                                              'key_path'])
     except Exception as e:
         logger.error("Cannot load the signing CA private key: %s" % (e,))
-        raise e
+        raise
     # generate crl #todo get hash alg from config?
     crl = crl_builder.sign(private_key, hashes.SHA256(), backends.default_backend())
 

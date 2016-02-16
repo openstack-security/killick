@@ -64,7 +64,7 @@ def recieve_csr(pecan_request):
             return_str += new_request.validationResultToString()
 
     # write request to 'database'
-    with open(jsonloader.conf.ra_options["certdb_file"], 'ab') as fout:
+    with open(jsonloader.conf.ra_options["certdb_file"], 'a') as fout:
         fout.write(new_request.serialize())
 
     return return_str

@@ -64,24 +64,14 @@ class request(object):
     """Returns a X509csr object containing the CSR for this request."""
 
     def get_X509csr(self):
-        # add newlines after the --begin-- and --end-- to make
-        # X509.signing_request.from_open_file work
-        csr_string = self.csr[:35] + "\n"
-        csr_string += self.csr[35:(len(self.csr) - 33)] + "\n"
-        csr_string += self.csr[(len(self.csr) - 33):]
         try:
-            return signing_request.X509Csr.from_buffer(str(csr_string))
+            return signing_request.X509Csr.from_buffer(self.csr.encode('ascii'))
         except Exception as e:
             logger.exception("Exception while parsing the CSR: %s", e)
             raise e
 
     def get_cert(self):
-        newcert = self.cert[:27] + "\n"
-        cert_tail = self.cert[(len(self.cert) - 25):] + "\n"
-        body = self.cert[27:(len(self.cert) - 25)]
-        newcert += '\n'.join([body[i:i + 64] for i in range(0, len(body), 64)])
-        newcert += "\n" + cert_tail
-        return str(newcert)
+        return self.cert
 
     def get_cert_serial(self):
         if self.cert is not None:
@@ -114,26 +104,22 @@ class request(object):
         return txt
 
     def serialize(self):
-        txt = "{"
-        txt += "\"request_id\": %d," % self.request_id
-        txt += "\"recieved_time\": \"%s\"," % str(
-            self.recieved_time.isoformat())
-        txt += "\"user\": \"%s\"," % self.user
-        txt += "\"csr\": \"%s\"," % self.csr
-        txt += "\"cert\": \"%s\"," % self.cert
-        txt += "\"Issued\": %s," % str(self.Issued).lower()
-        txt += "\"Revoked\": %s," % str(self.Revoked).lower()
-        txt += "\"Denied\": %s," % str(self.Denied).lower()
-        txt += "\"Valid\": %s," % str(self.Valid).lower()
-        txt += "\"validator_results\": %s," % json.dumps(
-            self.validator_results)
-        if self.revocation_date is None:
-            txt += "\"revocation_date\": null"
-        else:
-            txt += "\"revocation_date\": \"%s\"" % str(
-                self.revocation_date.isoformat())
-        txt += "}\n"
-        return txt
+        separators = (',', ':')
+        txt = json.dumps({
+            "request_id": self.request_id,
+            "recieved_time": str(self.recieved_time.isoformat()),
+            "user": self.user,
+            "csr": self.csr,
+            "cert": self.cert,
+            "Issued": self.Issued,
+            "Revoked": self.Revoked,
+            "Denied": self.Denied,
+            "Valid": self.Valid,
+            "validator_results": self.validator_results,
+            "revocation_date": str(self.revocation_date.isoformat()) if
+                                   self.revocation_date else None},
+            separators=separators)
+        return txt + "\n"
 
     def fromjson(self, jsonstring):
         self.request_id = jsonstring["request_id"]

@@ -18,7 +18,7 @@
   "ra_options": {
     "notify_user_validation_result": "True",
     "auto_deny_if_validation_fails": "True",
-    "certdb_file": "CertDB/certdb.json",
+    "certdb_file": "CertDB/CertDB.json",
     "ra_name": "default"
   },
   "revocation_options": {

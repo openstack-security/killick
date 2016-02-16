@@ -64,24 +64,14 @@ class request(object):
     """Returns a X509csr object containing the CSR for this request."""
 
     def get_X509csr(self):
-        # add newlines after the --begin-- and --end-- to make
-        # X509.signing_request.from_open_file work
-        csr_string = self.csr[:35] + "\n"
-        csr_string += self.csr[35:(len(self.csr) - 33)] + "\n"
-        csr_string += self.csr[(len(self.csr) - 33):]
         try:
-            return signing_request.X509Csr.from_buffer(csr_string.encode('ascii'))
+            return signing_request.X509Csr.from_buffer(self.csr.encode('ascii'))
         except Exception as e:
             logger.exception("Exception while parsing the CSR: %s", e)
             raise e
 
     def get_cert(self):
-        newcert = self.cert[:27] + "\n"
-        cert_tail = self.cert[(len(self.cert) - 25):] + "\n"
-        body = self.cert[27:(len(self.cert) - 25)]
-        newcert += '\n'.join([body[i:i + 64] for i in range(0, len(body), 64)])
-        newcert += "\n" + cert_tail
-        return str(newcert)
+        return self.cert
 
     def get_cert_serial(self):
         if self.cert is not None:

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 def _parse_csr(pecan_request, auth_result, user):
 
     # Create request object for writing to database
-    new_request = request.request(pecan_request.POST.get('csr').replace("\n", ""),
+    new_request = request.request(pecan_request.POST.get('csr'),
         util.get_next_id(jsonloader.conf.ra_options["certdb_file"]),user)
 
     # Validate CSR

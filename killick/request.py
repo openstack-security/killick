@@ -28,7 +28,7 @@ class request(object):
 
         # CSR Info
         self.request_id = nid
-        self.recieved_time = datetime.datetime.now()
+        self.received_time = datetime.datetime.now()
         self.user = nuser
 
         # CSR and Cert
@@ -84,7 +84,7 @@ class request(object):
     def toInfoString(self):
         txt = ""
         txt += "ID: %d" % self.request_id
-        txt += ", Recieved: " + self.recieved_time.strftime("%d/%m/%Y %H:%M")
+        txt += ", Received: " + self.received_time.strftime("%d/%m/%Y %H:%M")
         txt += ", Status: " + self.getStatus()
         if self.Valid & (self.validator_results is not None):
             txt += ", Ran %d validators: Success" % len(self.validator_results)
@@ -121,10 +121,11 @@ class request(object):
             separators=separators)
         return txt + "\n"
 
+
     def fromjson(self, jsonstring):
         self.request_id = jsonstring["request_id"]
-        self.recieved_time = datetime.datetime.strptime(
-            jsonstring["recieved_time"], "%Y-%m-%dT%H:%M:%S.%f")
+        self.received_time = datetime.datetime.strptime(
+            jsonstring["received_time"], "%Y-%m-%dT%H:%M:%S.%f")
         self.user = jsonstring["user"]
         self.csr = jsonstring["csr"]
         self.cert = jsonstring["cert"]

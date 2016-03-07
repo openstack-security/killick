@@ -97,7 +97,7 @@ def revoke(reqid):
             return "Cannot revoke, certificate already Revoked"
         elif dbdata[reqid].getStatus() == "Issued":
             dbdata[reqid].Revoked = True
-            dbdata[reqid].revocation_date = datetime.datetime.now()
+            dbdata[reqid].revocation_date = datetime.datetime.utcnow()
         elif dbdata[reqid].getStatus() == "Pending":
             return "Cannot revoke, certificate not Issued"
         elif dbdata[reqid].getStatus() == "Denied":

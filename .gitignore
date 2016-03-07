@@ -1,4 +1,6 @@
 *.pyc
+*.pem
+*.crl
 temp-*.crt
 config.cfg
 .venv

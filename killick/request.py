@@ -28,7 +28,9 @@ class request(object):
 
         # CSR Info
         self.request_id = nid
-        self.received_time = datetime.datetime.now()
+        self.received_time = datetime.datetime.utcnow()
+        # add issued time
+        # add expiry time
         self.user = nuser
 
         # CSR and Cert

@@ -51,3 +51,11 @@ fetch/retrieve a certificate:
 fetch certificate revocation list (crl):
 
     curl http://0.0.0.0:5017/v1/crl
+
+
+Todo
+----
+
+- Add 'view expired'
+- add 'issued date'
+- add 'expirey date'

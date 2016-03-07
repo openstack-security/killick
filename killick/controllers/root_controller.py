@@ -111,7 +111,6 @@ class CrlController(rest.RestController):
 
 
 class V1Controller(rest.RestController):
-
     admin = AdminController()
     fetch = FetchController()
     retrieve = FetchController()

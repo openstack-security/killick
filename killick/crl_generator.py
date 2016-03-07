@@ -48,11 +48,11 @@ def generate_crl():
 
     # set crl lifetimes #todo. dg. what about clock skew? validfrom date in
     # past?
-    crl_builder = crl_builder.last_update(datetime.datetime.today())
+    crl_builder = crl_builder.last_update(datetime.datetime.utcnow())
     crl_lifetime = datetime.timedelta(
         int(jsonloader.conf.revocation_options["crl_lifetime_days"]), 0, 0)
     crl_builder = crl_builder.next_update(
-        datetime.datetime.today() + crl_lifetime)
+        datetime.datetime.utcnow() + crl_lifetime)
 
     # get CA cert
     ca_conf = jsonloader.signing_ca_for_registration_authority(
